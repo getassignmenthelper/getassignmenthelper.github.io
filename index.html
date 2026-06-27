@@ -234,6 +234,17 @@
   .ex-code { background:#0f172a; color:#e2e8f0; border-radius:10px; padding:12px 14px; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:12.5px; line-height:1.55; white-space:pre; overflow-x:auto; margin:0; }
   .ex-note { background:#eff6ff; border:1px solid #dbeafe; color:#1e3a8a; font-size:13px; border-radius:9px; padding:9px 12px; margin-top:8px; }
   .ex-lock { text-align:center; background:linear-gradient(180deg,#ffffff,#f8fafc); border:1px dashed var(--line); border-radius:12px; padding:22px; margin-top:14px; color:var(--ink); font-size:14px; }
+
+  /* grade predictor */
+  .grade-top { display:flex; align-items:center; gap:16px; margin:6px 0 14px; }
+  .grade-band { font-size:32px; font-weight:800; line-height:1; }
+  .gcrit { border-top:1px solid var(--line); padding:12px 0; }
+  .gcrit .top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .gcrit .nm { font-weight:700; font-size:14px; }
+  .pill { font-size:12px; font-weight:700; color:#fff; padding:3px 11px; border-radius:999px; white-space:nowrap; }
+  .gcrit .why { color:var(--muted); font-size:13px; margin-top:4px; }
+  .gcrit .up { font-size:13px; margin-top:5px; }
+  .gcrit .up b { color:var(--brand); }
 </style>
 </head>
 <body>
@@ -407,7 +418,15 @@
       <div id="checks"></div>
       <h3>How to make it better</h3>
       <ul class="tips" id="tips"><li class="empty" style="list-style:none">Tips will appear here as you write.</li></ul>
+      <button class="btn small" style="width:100%;margin-top:14px" onclick="gradePredict()">🎯 Predict my grade</button>
+      <div class="score-label" style="margin-top:6px;text-align:center">Rubric-based estimate · <b>Pro</b> unlocks the full breakdown + how to level up</div>
     </div>
+  </div>
+
+  <div class="card" id="gradeCard" style="display:none">
+    <h2>🎯 Predicted grade</h2>
+    <p class="empty" style="margin-top:0">An estimate based on rubric signals in your draft — to help you improve. Not an official mark.</p>
+    <div id="gradeBody"></div>
   </div>
 
 </div>
@@ -1783,6 +1802,111 @@ function renderExample(key){
             '<br><a class="cta primary" href="#pricing" style="display:inline-block;margin-top:12px;padding:10px 18px;width:auto">Unlock all Worked Examples with Pro →</a></div>';
   }
   el.innerHTML = html;
+}
+
+/* ---- Grade Predictor (Pro): scores the student's OWN draft vs the HD rubric ---- */
+const BANDS = ['Needs work','Pass','Credit','Distinction','HD'];
+const BAND_COL = ['#dc2626','#b45309','#d97706','#2563eb','#16a34a'];
+
+function gradeEssay(){
+  const text = editor.innerText.replace(/ /g,' ').trim();
+  if(!text || text === 'Start writing your assignment here…') return null;
+  const words = (text.match(/\b[\w'-]+\b/g)||[]); const wc = words.length;
+  if(wc < 40) return {tooShort:true};
+  const lower = text.toLowerCase();
+  const sentences = (text.match(/[^.!?]+[.!?]+/g)||[]);
+  const paras = editor.innerText.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  const promptWords = (val('prompt').toLowerCase().match(/[a-z]{4,}/g)||[]).filter(w=>!STOP.has(w));
+  const cov = promptWords.length ? [...new Set(promptWords)].filter(w=>lower.includes(w)).length / new Set(promptWords).size : 0.5;
+  const firstPara = paras[0]||'';
+  const hasThesis = /\b(argue|argues|this essay|this paper|will show|contend|therefore|because|on balance)\b/i.test(firstPara) || firstPara.split(/\s+/).length>25;
+  const cites = (text.match(/\([A-Za-z][^)]*\d{4}[^)]*\)|\[\d+\]|et al\.|\bp\.\s?\d+/g)||[]).length;
+  const analysisHits = (lower.match(/\b(suggests?|indicates?|implies|therefore|however|whereas|because|consequently|reveals?|critically|evaluate|in contrast|on the other hand)\b/g)||[]).length;
+  const counter = /\b(however|admittedly|on the other hand|critics|opponents|whereas|although)\b/i.test(lower);
+  const avgLen = sentences.length ? wc/sentences.length : wc;
+  const filler = (lower.match(/\b(very|really|a lot|stuff|things|basically|kind of|sort of)\b/g)||[]).length;
+  const crit = [];
+  let s1 = hasThesis && cov>=0.5 ? 4 : hasThesis ? 3 : cov>=0.5 ? 2 : 1;
+  crit.push({name:'Argument & thesis', score:s1, why: hasThesis?'You state a clear position early.':'No clear thesis detected in your opening.',
+    up: s1<4 ? (hasThesis?'Tie every paragraph explicitly back to your thesis.':'Add a sentence stating your overall answer: "This essay argues that… because…".') : 'Strong — every paragraph should serve the thesis.'});
+  let s2 = paras.length>=5?4:paras.length>=4?3:paras.length>=3?2:paras.length>=2?1:0;
+  crit.push({name:'Structure', score:s2, why:paras.length+' paragraph(s) detected.', up: s2<4?'Aim for intro + 3–4 body paragraphs (one idea each) + conclusion.':'Well structured.'});
+  let s3 = cites>=4?4:cites>=2?3:cites>=1?2:1;
+  crit.push({name:'Evidence & referencing', score:s3, why: cites+' citation(s) found.', up: s3<4?'Back each claim with a cited source, e.g. (Smith, 2020) — aim for several.':'Well evidenced.'});
+  let s4 = (analysisHits>=6 && counter)?4:(analysisHits>=4||counter)?3:analysisHits>=2?2:1;
+  crit.push({name:'Analysis & critical thinking', score:s4, why: counter?'You weigh more than one side.':'Mostly descriptive — limited interpretation.',
+    up: s4<4?'Interpret your evidence ("this suggests…") and weigh a counter-argument before rebutting it.':'Sophisticated analysis.'});
+  let s5 = (avgLen>=12&&avgLen<=26&&filler<=2)?4:(avgLen<=30&&filler<=4)?3:2;
+  crit.push({name:'Clarity & expression', score:s5, why:'Avg '+Math.round(avgLen)+' words/sentence, '+filler+' filler phrase(s).',
+    up: s5<4?'Keep sentences ~15–22 words and cut filler ("very", "a lot").':'Clear, readable prose.'});
+  return {crit};
+}
+
+function gradeCode(){
+  const code = codeEditor.value;
+  if(code.trim().length < 20 || looksLikeNotebook(code)) return {tooShort:true};
+  const head = code.slice(0,700).toLowerCase();
+  const hasCover = /name\s*:/.test(head) && /(student\s*id|id\s*:)/.test(head);
+  const hasFunc = /\bdef\s+\w+\s*\(/.test(code) || /\b(function|public|private|static)\b/.test(code);
+  const comments = /(^|\s)(#|\/\/)/.test(code) || /"""[\s\S]*?"""/.test(code);
+  const hasTry = /\btry\s*:|\btry\s*\{/.test(code);
+  const validates = /\binput\s*\(/.test(code) ? (hasTry || /not in\s*\[|==\s*['"]/.test(code)) : true;
+  const join = /\.join\s*\(/.test(code);
+  const badConcat = /=\s*['"]{2}/.test(code) && /\b(for|while)\b/.test(code) && /\w+\s*\+=\s*\w/.test(code);
+  const hasClass = /\bclass\s+\w+/.test(code);
+  const wantsClass = /\bclass(es)?\b|object|\boop\b|inheritance/i.test(val('prompt')+' '+val('topic'));
+  const hasOut = /\bprint|cout|console\.log|System\.out/.test(code);
+  const crit = [];
+  let c1 = Math.min(4, (hasTry?2:0)+(validates?1:0)+(hasOut?1:0));
+  crit.push({name:'Correctness (60%)', score:c1, why: hasTry?'Handles errors with try/except.':'No error handling found.',
+    up: c1<4?'Wrap risky input/conversions in try/except and validate every input so it never crashes.':'Robust — handles inputs safely.'});
+  let c2 = Math.min(4, (comments?2:0)+(hasCover?2:0));
+  crit.push({name:'Documentation (10%)', score:c2, why:(hasCover?'Cover sheet present. ':'No cover sheet. ')+(comments?'Comments present.':'Few comments.'),
+    up:c2<4?(hasCover?'Comment the tricky parts (the why).':'Add a cover-sheet docstring (name, ID, unit, task) + comments.'):'Well documented.'});
+  let c3 = Math.min(4, (hasFunc?2:0)+(wantsClass?(hasClass?2:0):2));
+  crit.push({name:'Readability & elegance (10%)', score:c3, why: hasFunc?'Logic split into functions/methods.':'Code is one block.',
+    up:c3<4?(wantsClass&&!hasClass?'Use classes (each with one job) for this OOP task.':'Break logic into well-named functions.'):'Clean and organised.'});
+  let c4 = hasCover?4:1;
+  crit.push({name:'Meeting specs (10%)', score:c4, why: hasCover?'Cover sheet included.':'Cover sheet missing.',
+    up:c4<4?'Add the cover sheet (name, student ID, unit, week) — easy marks.':'Meets submission specs.'});
+  let c5 = join?4:badConcat?1:3;
+  crit.push({name:'Efficiency (10%)', score:c5, why: join?'Uses "".join().':badConcat?'Builds a string with += in a loop (slow).':'No obvious inefficiency.',
+    up:c5<4?'Collect parts in a list and use "".join() instead of += in a loop.':'Efficient.'});
+  return {crit};
+}
+
+function renderGrade(data){
+  const el = document.getElementById('gradeBody');
+  if(!data){ el.innerHTML = '<p class="empty">Add your draft in the writing or code workspace first, then predict your grade.</p>'; return; }
+  if(data.tooShort){ el.innerHTML = '<p class="empty">Write a bit more first (a few paragraphs or a code block), then try again.</p>'; return; }
+  const crit = data.crit;
+  const avg = crit.reduce((a,c)=>a+c.score,0)/crit.length;
+  const overall = Math.round(avg);
+  const pct = Math.round(avg/4*100);
+  const pro = isPro();
+  let html = '<div class="grade-top"><div class="grade-band" style="color:'+BAND_COL[overall]+'">'+BANDS[overall]+'</div>'+
+    '<div class="score-label">Estimated band · ~'+pct+'% of rubric signals met<br>across '+crit.length+' criteria</div></div>';
+  crit.forEach((c,i)=>{
+    if(!pro && i>=1) return;
+    html += '<div class="gcrit"><div class="top"><span class="nm">'+esc(c.name)+'</span>'+
+      '<span class="pill" style="background:'+BAND_COL[c.score]+'">'+BANDS[c.score]+'</span></div>'+
+      '<div class="why">'+esc(c.why)+'</div>'+
+      '<div class="up">↑ <b>To level up:</b> '+esc(c.up)+'</div></div>';
+  });
+  if(!pro){
+    html += '<div class="ex-lock">🔒 <b>'+(crit.length-1)+' more graded criteria</b> + exactly how to push each one toward HD.<br>'+
+      '<a class="cta primary" href="#pricing" style="display:inline-block;margin-top:12px;padding:10px 18px;width:auto">Unlock the full grade breakdown with Pro →</a></div>';
+  }
+  html += '<p class="score-label" style="margin-top:12px">Estimate from structure &amp; rubric signals to guide improvement — not an official grade.</p>';
+  el.innerHTML = html;
+}
+
+function gradePredict(){
+  const data = (MODE === 'code') ? gradeCode() : gradeEssay();
+  renderGrade(data);
+  const card = document.getElementById('gradeCard');
+  card.style.display = 'block';
+  card.scrollIntoView({behavior:'smooth', block:'center'});
 }
 function dl(blob, name){
   const a = document.createElement('a');
