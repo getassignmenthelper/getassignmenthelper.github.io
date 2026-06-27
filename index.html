@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Assignment Coach — Free Study Tool: Plan, Write & Check Assignments + Run Code</title>
+<title>Assignment Helper — Free Study Tool: Plan, Write & Check Assignments + Run Code</title>
 <meta name="description" content="Free AI-style study coach: paste your lecture slides, get a step-by-step plan, a section-by-section writing guide, live feedback on your own writing, and run Python/Java/C++ in the browser. Learn to do your assignment yourself — essays, reports, data reports, legal IRAC, financial plans and coding." />
 <meta name="keywords" content="free assignment helper, essay planner, how to write an assignment, study tool, IRAC legal answer, Power BI report structure, run python in browser, referencing APA MLA, assignment coach, student writing feedback" />
 <meta name="robots" content="index, follow" />
 <link rel="canonical" href="https://shubhamyadav730405-droid.github.io/" />
 <!-- Open Graph / social sharing (used by Facebook, LinkedIn, Discord, WhatsApp) -->
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Assignment Coach — Free study tool that teaches you to ace your assignment" />
+<meta property="og:title" content="Assignment Helper — Free study tool that teaches you to ace your assignment" />
 <meta property="og:description" content="Plan it, write it yourself, get live feedback, and run your code — all free, all in your browser. Essays, reports, IRAC, financial plans & coding." />
 <meta property="og:url" content="https://shubhamyadav730405-droid.github.io/" />
 <meta property="og:image" content="https://shubhamyadav730405-droid.github.io/preview.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Assignment Coach — Free study tool" />
+<meta name="twitter:title" content="Assignment Helper — Free study tool" />
 <meta name="twitter:description" content="Plan, write, get live feedback, and run code — free, in your browser." />
 <style>
   :root {
@@ -196,12 +196,42 @@
   .support .ko { background: var(--brand); color:#fff; border-color: var(--brand); }
   .support .ko:hover { background:#1d4ed8; }
   .support .disc { color: var(--muted); font-size: 12px; margin-top: 10px; }
+
+  /* pricing */
+  .upgrade-btn {
+    display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, var(--brand), #7c3aed);
+    color: #fff; border: none; padding: 8px 14px; border-radius: 9px; font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: none;
+  }
+  .upgrade-btn:hover { filter: brightness(1.05); }
+  .pro-badge { display: none; align-items: center; gap: 5px; background: #ecfdf5; color: var(--good); border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  @media (max-width: 820px){ .pricing-grid { grid-template-columns: 1fr; } }
+  .tier { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: #fff; display: flex; flex-direction: column; }
+  .tier.featured { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); position: relative; }
+  .tier .badge2 { position:absolute; top:-11px; left:18px; background: var(--brand); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; }
+  .tier h3 { margin: 0 0 4px; text-transform: none; letter-spacing: 0; color: var(--ink); font-size: 17px; }
+  .tier .price { font-size: 30px; font-weight: 800; margin: 6px 0; }
+  .tier .price small { font-size: 14px; font-weight: 500; color: var(--muted); }
+  .tier ul { list-style: none; padding: 0; margin: 10px 0 16px; flex: 1; }
+  .tier li { font-size: 13.5px; padding: 5px 0 5px 22px; position: relative; }
+  .tier li:before { content: "✓"; position: absolute; left: 0; color: var(--good); font-weight: 700; }
+  .tier .cta { text-align: center; padding: 10px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 14px; display: block; }
+  .tier .cta.primary { background: var(--brand); color: #fff; }
+  .tier .cta.primary:hover { background: #1d4ed8; }
+  .tier .cta.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .license { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .license input { flex: 1; min-width: 200px; }
+  #licenseMsg { font-size: 13px; margin-top: 6px; }
 </style>
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span class="logo">✓</span> Assignment Coach</div>
-  <div class="tagline">Learn to do it yourself — faster and better</div>
+  <div class="brand"><span class="logo">✓</span> Assignment Helper</div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <span class="tagline">Learn to do it yourself — faster and better</span>
+    <span class="pro-badge" id="proBadge">★ PRO</span>
+    <a class="upgrade-btn" id="upgradeBtn" href="#pricing">✨ Upgrade</a>
+  </div>
 </header>
 
 <div class="honor">🎓 <b>Honor code:</b> Your schoolwork should be your own. This tool coaches you and checks your writing — it never writes the assignment for you. Use it to learn, not to cheat.</div>
@@ -370,17 +400,69 @@
 
 </div>
 
+<div class="support" id="pricing">
+  <div class="card">
+    <h2 style="margin-bottom:4px">Upgrade to Pro</h2>
+    <p class="empty" style="margin-top:0">The tool stays free forever. Pro removes the small credit line on your downloads, removes ads, and unlocks every premium feature we add next.</p>
+    <div class="pricing-grid">
+      <div class="tier">
+        <h3>Free</h3>
+        <div class="price">$0</div>
+        <ul>
+          <li>Step-by-step plan + section guides</li>
+          <li>Live writing &amp; code feedback</li>
+          <li>Run Python / Java / C++ / JS</li>
+          <li>Upload PDF / Word / slides</li>
+          <li>All 9 assignment types</li>
+          <li>Downloads (with a small credit line)</li>
+        </ul>
+        <a class="cta ghost" href="#">You're on Free</a>
+      </div>
+      <div class="tier featured">
+        <span class="badge2">Most popular</span>
+        <h3>Pro</h3>
+        <div class="price">$4.99<small>/month</small></div>
+        <ul>
+          <li>Everything in Free</li>
+          <li>No credit line on downloads</li>
+          <li>No ads</li>
+          <li>All future premium features</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <a class="cta primary" id="ctaMonthly" href="#REPLACE-WITH-LEMONSQUEEZY-MONTHLY" target="_blank" rel="noopener">Go Pro — $4.99/mo</a>
+      </div>
+      <div class="tier">
+        <h3>Semester Pass</h3>
+        <div class="price">$14.99<small> once</small></div>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>~4 months, no recurring</li>
+          <li>Best value for students</li>
+          <li>One payment, done</li>
+        </ul>
+        <a class="cta primary" id="ctaSemester" href="#REPLACE-WITH-LEMONSQUEEZY-SEMESTER" target="_blank" rel="noopener">Get the pass — $14.99</a>
+      </div>
+    </div>
+    <div class="license">
+      <input type="text" id="licenseKey" placeholder="Already bought? Paste your licence key to unlock Pro" />
+      <button class="btn small" onclick="unlockPro()">Unlock Pro</button>
+    </div>
+    <div id="licenseMsg"></div>
+    <p class="disc">Secure payments &amp; subscriptions handled by Lemon Squeezy. <!-- MONETISATION: 1) create a Lemon Squeezy account (free, $0 upfront — they take a % per sale). 2) Make a "Pro" monthly subscription product and a "Semester Pass" one-time product. 3) Paste their checkout URLs into #ctaMonthly and #ctaSemester hrefs. The Unlock button already validates licence keys via Lemon Squeezy's public licence API. --></p>
+  </div>
+</div>
+
 <div class="support">
   <div class="card">
     <h2 style="margin-bottom:4px">🧰 Recommended study tools</h2>
-    <p class="empty" style="margin-top:0">Hand-picked tools that pair well with the Coach. <!-- MONETISATION: replace the href values with your own affiliate links (Grammarly, Notion, Perlego, Coursera, Quillbot all have free affiliate programs). You earn a commission when someone signs up — costs you $0. --></p>
+    <p class="empty" style="margin-top:0">Hand-picked tools that pair well with Assignment Helper. <!-- MONETISATION: replace the href values with your own affiliate links (Grammarly, Notion, Perlego, Coursera, Quillbot all have free affiliate programs). You earn a commission when someone signs up — costs you $0. --></p>
     <div class="reco">
       <a href="#REPLACE-WITH-AFFILIATE-LINK" target="_blank" rel="noopener sponsored">📝 Grammarly <span class="tag">grammar & clarity</span></a>
       <a href="#REPLACE-WITH-AFFILIATE-LINK" target="_blank" rel="noopener sponsored">📚 Perlego <span class="tag">online textbooks</span></a>
       <a href="#REPLACE-WITH-AFFILIATE-LINK" target="_blank" rel="noopener sponsored">🗂️ Notion <span class="tag">notes & planning</span></a>
       <a href="#REPLACE-WITH-AFFILIATE-LINK" target="_blank" rel="noopener sponsored">🎓 Coursera <span class="tag">skill courses</span></a>
     </div>
-    <p class="disc">Some links may be affiliate links — if you sign up, the Coach may earn a small commission at no extra cost to you. This keeps the tool free.</p>
+    <p class="disc">Some links may be affiliate links — if you sign up, Assignment Helper may earn a small commission at no extra cost to you. This keeps the tool free.</p>
     <div class="reco" style="margin-top:14px">
       <a class="ko" href="#REPLACE-WITH-YOUR-KOFI-OR-BUYMEACOFFEE-LINK" target="_blank" rel="noopener">☕ Support this free tool</a>
       <a href="#REPLACE-WITH-SHARE-LINK" onclick="navigator.share?navigator.share({title:document.title,url:location.href}):navigator.clipboard.writeText(location.href);return false;">🔗 Share with a classmate</a>
@@ -391,7 +473,7 @@
 <!-- MONETISATION: paste your Google AdSense / Ezoic ad <script> here once you have traffic and approval (free to join). -->
 
 <footer>
-  Assignment Coach · a study tool that teaches, not cheats. Works in your browser — your files never leave your device.
+  Assignment Helper · a study tool that teaches, not cheats. Works in your browser — your files never leave your device.
 </footer>
 
 <script>
@@ -1561,17 +1643,54 @@ function downloadPy(){
 function editorText(){ return editor.innerText.trim(); }
 function editorHtml(){ return editor.innerHTML; }
 
+/* free downloads carry a small credit line (also free marketing); Pro removes it */
+const SITE_URL = 'https://shubhamyadav730405-droid.github.io/';
+function wmText(){ return isPro() ? '' : '\n\n— Drafted with Assignment Helper (free study tool) · ' + SITE_URL + ' —'; }
+function wmHtml(){ return isPro() ? '' : '<p style="margin-top:26px;color:#999;font-size:9pt;border-top:1px solid #ddd;padding-top:8px">Drafted with Assignment Helper · ' + SITE_URL + '</p>'; }
+
 function downloadTxt(){
-  dl(new Blob([editorText()], {type:'text/plain'}), 'assignment.txt');
+  dl(new Blob([editorText() + wmText()], {type:'text/plain'}), 'assignment.txt');
 }
 function downloadDocx(){
-  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Assignment</title></head><body style="font-family:Calibri,Arial;font-size:12pt;line-height:1.6">${editorHtml()}</body></html>`;
+  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Assignment</title></head><body style="font-family:Calibri,Arial;font-size:12pt;line-height:1.6">${editorHtml()}${wmHtml()}</body></html>`;
   dl(new Blob(['﻿', html], {type:'application/msword'}), 'assignment.doc');
 }
 function downloadPdf(){
   const w = window.open('', '_blank');
-  w.document.write(`<html><head><title>Assignment</title><style>body{font-family:Georgia,serif;line-height:1.7;max-width:720px;margin:40px auto;padding:0 20px;color:#111}p{margin:0 0 12px}</style></head><body>${editorHtml()}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+  w.document.write(`<html><head><title>Assignment</title><style>body{font-family:Georgia,serif;line-height:1.7;max-width:720px;margin:40px auto;padding:0 20px;color:#111}p{margin:0 0 12px}</style></head><body>${editorHtml()}${wmHtml()}<script>window.onload=function(){window.print();}<\/script></body></html>`);
   w.document.close();
+}
+
+/* ---- Pro / subscription state ---- */
+function isPro(){ return localStorage.getItem('ah_pro') === '1'; }
+function applyProState(){
+  const pro = isPro();
+  const badge = document.getElementById('proBadge');
+  const up = document.getElementById('upgradeBtn');
+  if(badge) badge.style.display = pro ? 'inline-flex' : 'none';
+  if(up) up.style.display = pro ? 'none' : 'inline-flex';
+}
+async function unlockPro(){
+  const key = (document.getElementById('licenseKey').value || '').trim();
+  const out = document.getElementById('licenseMsg');
+  if(!key){ out.style.color = 'var(--warn)'; out.textContent = 'Paste your licence key first.'; return; }
+  out.style.color = 'var(--muted)'; out.textContent = 'Checking…';
+  try{
+    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+      method: 'POST', headers: { 'Accept': 'application/json' },
+      body: new URLSearchParams({ license_key: key })
+    });
+    const data = await res.json();
+    if(data && data.valid){
+      localStorage.setItem('ah_pro', '1'); localStorage.setItem('ah_key', key);
+      out.style.color = 'var(--good)'; out.textContent = '✅ Pro unlocked — thank you for supporting the tool!';
+      applyProState();
+    } else {
+      out.style.color = 'var(--bad)'; out.textContent = 'That licence key isn\'t valid yet. Double-check it, or contact support.';
+    }
+  }catch(e){
+    out.style.color = 'var(--bad)'; out.textContent = 'Couldn\'t verify (needs internet, and the store must be set up). Try again.';
+  }
 }
 function dl(blob, name){
   const a = document.createElement('a');
@@ -1587,6 +1706,7 @@ function esc(s){ return (s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','
 /* init */
 updateRunNote();
 loadTemplate();
+applyProState();
 </script>
 </body>
 </html>
